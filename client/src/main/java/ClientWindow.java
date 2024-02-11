@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-public class ClientWindow extends JFrame implements ActionListener, TCPConnectionListener {
+public class ClientWindow extends JFrame implements TCPConnectionListener {
 
     private static final String IP_ADDR = "127.0.0.1";
     private static final int PORT = 8000;
@@ -51,10 +51,27 @@ public class ClientWindow extends JFrame implements ActionListener, TCPConnectio
         log.setEditable(false);
         JScrollPane scrolling = new JScrollPane(log);
         add(scrolling);
-
-        btnSend.addActionListener(this);
-
         setVisible(true);
+
+        btnSend.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String msg = fieldInput.getText();
+                if(msg.equals("")) return;
+                fieldInput.setText(null);
+                connection.sendString(fieldNickname.getText() + ": " + msg);
+            }
+        });
+        btnLogin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                connectToServer();
+            }
+        });
+
+    }
+
+    private void connectToServer() {
         try {
             connection = new TCPConnection(this, IP_ADDR, PORT);
         } catch (IOException e) {
@@ -62,19 +79,9 @@ public class ClientWindow extends JFrame implements ActionListener, TCPConnectio
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String msg = fieldInput.getText();
-        if(msg.equals("")) return;
-        fieldInput.setText(null);
-        connection.sendString(fieldNickname.getText() + ": " + msg);
-    }
-
 
     @Override
     public void onConnectionRead(TCPConnection tcpConnection) {
-
-
         printMsg("Connection ready..."
         );
     }
